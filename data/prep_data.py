@@ -38,7 +38,7 @@ def load_tables(table=None):
         load_data('population', state_name_field='state_or_union_territory')
 
 def export_tables():
-    BUILD_DIR = '../src/json'
+    BUILD_DIR = '../static/json'
     try:
         shutil.rmtree(BUILD_DIR)
     except FileNotFoundError:
@@ -52,11 +52,13 @@ def export_tables():
         json.dump(states, f)
 
     for state in states:
-        print(state)
+        print("Preparing {}".format(state['code']))
         fname = "{}.json".format(state['code'].lower())
         d = copy.deepcopy(state)
         for metrics in ['states', 'area', 'population']:
-            d[metrics] = db[metrics].find_one(state_code=state['code'])
+            _metrics = db[metrics].find_one(state_code=state['code'])
+            del _metrics['state_code']
+            d[metrics] = _metrics
         with open('{}/{}'.format(BUILD_DIR, fname), 'w') as f:
             json.dump(d, f)
 
