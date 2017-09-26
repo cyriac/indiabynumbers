@@ -1,0 +1,2 @@
+dataset==1.0.2
+awesome-slugify==1.6.5
