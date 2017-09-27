@@ -27,15 +27,22 @@ def load_data(key, state_name_field=None):
         table.insert(row)
     return table
 
+MAPTABLES = {
+    'states': 'state_or_union_territory',
+    'area': 'state_territory',
+    'population': 'state_or_union_territory',
+    'hiv_awareness': 'state',
+    'hdi': 'state_union_territory'
+}
+
 def load_tables(table=None):
     if table is not None:
         load_data(table)
     else:
         load_data('alias')
         load_data('state_codes')
-        load_data('states', state_name_field='state_or_union_territory')
-        load_data('area', state_name_field='state_territory')
-        load_data('population', state_name_field='state_or_union_territory')
+        for k, v in MAPTABLES.items():
+            load_data(k, state_name_field=v)
 
 def export_tables():
     BUILD_DIR = '../static/json'
@@ -55,12 +62,21 @@ def export_tables():
         print("Preparing {}".format(state['code']))
         fname = "{}.json".format(state['code'].lower())
         d = copy.deepcopy(state)
-        for metrics in ['states', 'area', 'population']:
+        for metrics in MAPTABLES.keys():
             _metrics = db[metrics].find_one(state_code=state['code'])
-            del _metrics['state_code']
+            if _metrics:
+                for k in ['id', 'state_code']:
+                    if k in _metrics:
+                        del _metrics[k]
             d[metrics] = _metrics
         with open('{}/{}'.format(BUILD_DIR, fname), 'w') as f:
             json.dump(d, f)
+
+
+def check_table_linking(tablename):
+    for i in db[tablename].all():
+        if i['state_code'] == None:
+            print(i)
 
 if __name__ == '__main__':
     load_tables()

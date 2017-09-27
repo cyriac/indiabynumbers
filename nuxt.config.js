@@ -20,6 +20,9 @@ module.exports = {
       { src: 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js' }
     ]
   },
+  css: [
+    '@/assets/scss/base.scss'
+  ],
   /*
   ** Customize the progress bar color
   loading: { color: '#3B8070' },
