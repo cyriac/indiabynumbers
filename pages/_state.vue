@@ -22,11 +22,11 @@
 
 
 <script>
-import axios from 'axios'
+import axios from '~/plugins/axios'
 
 export default {
   async asyncData ({ params }) {
-    let { data } = await axios.get(`http://localhost:3000/json/${params.state}.json`)
+    let { data } = await axios.get(`/json/${params.state}.json`)
     return data
   }
 }
