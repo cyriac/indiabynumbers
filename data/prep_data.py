@@ -65,7 +65,7 @@ def export_tables():
         for metrics in MAPTABLES.keys():
             _metrics = db[metrics].find_one(state_code=state['code'])
             if _metrics:
-                for k in ['id', 'state_code']:
+                for k in ['id', 'state_code', MAPTABLES[metrics]]:
                     if k in _metrics:
                         del _metrics[k]
             d[metrics] = _metrics
