@@ -73,9 +73,21 @@ export default {
   }
 }
 .card-columns {
-  column-count: 4;
   -webkit-column-count: 4;
+  column-count: 4;
   overflow: visible;
+  @media (max-width: 992px) {
+    -webkit-column-count: 3;
+    column-count: 3;
+  }
+  @media (max-width: 768px) {
+    -webkit-column-count: 2;
+    column-count: 2;
+  }
+  @media (max-width: 576px) {
+    -webkit-column-count: 1;
+    column-count: 1;
+  }
 }
 .card {
   margin-top: 1px;
@@ -95,6 +107,9 @@ export default {
     color: white;
     box-shadow: 0 7px 14px rgba(50,50,93,.15), 0 3px 6px rgba(0,0,0,.15);
     transform: translateY(-1px);
+  }
+  @media (max-width: 576px) {
+    width: 100%;
   }
 }
 </style>
