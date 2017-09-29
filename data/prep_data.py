@@ -8,6 +8,8 @@ import yaml
 
 from cleaner import DataReader
 
+
+MAPTABLES = yaml.load(open('config.yml'))
 db = dataset.connect('sqlite:///:memory:')
 
 def load_data(key, state_name_field=None):
@@ -26,14 +28,6 @@ def load_data(key, state_name_field=None):
     for row in reader.data:
         table.insert(row)
     return table
-
-MAPTABLES = {
-    'states': 'state_or_union_territory',
-    'area': 'state_territory',
-    'population': 'state_or_union_territory',
-    'hiv_awareness': 'state',
-    'hdi': 'state_union_territory'
-}
 
 def load_tables(table=None):
     if table is not None:

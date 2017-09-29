@@ -1,0 +1,5 @@
+states: 'state_or_union_territory'
+area: 'state_territory'
+population: 'state_or_union_territory'
+hiv_awareness: 'state'
+hdi: 'state_union_territory'
