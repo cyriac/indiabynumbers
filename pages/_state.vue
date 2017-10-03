@@ -26,7 +26,7 @@ import axios from '~/plugins/axios'
 
 export default {
   async asyncData ({ params }) {
-    let { data } = await axios.get(`/json/${params.state}.json`)
+    let { data } = await axios.get(`/json/states_level/${params.state}.json`)
     return data
   }
 }

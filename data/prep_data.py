@@ -55,6 +55,8 @@ def export_state_data():
         pass
 
     os.makedirs(BUILD_DIR)
+    os.makedirs("{}/states_level".format(BUILD_DIR))
+    os.makedirs("{}/metrics_level".format(BUILD_DIR))
 
     states = DB['state_codes'].all()
     states = list(states)
@@ -62,7 +64,7 @@ def export_state_data():
     spinner = Halo({'text': 'Exporting state data', 'spinner': 'dots'})
     spinner.start()
 
-    with open('{}/states.json'.format(BUILD_DIR), 'w') as f:
+    with open('{}/states_level/states.json'.format(BUILD_DIR), 'w') as f:
         msg = "Exporting {}".format("states")
         json.dump(states, f)
 
@@ -78,7 +80,7 @@ def export_state_data():
                     if k in _metrics:
                         del _metrics[k]
             d[metrics] = _metrics
-        with open('{}/{}'.format(BUILD_DIR, fname), 'w') as f:
+        with open('{}/states_level/{}'.format(BUILD_DIR, fname), 'w') as f:
             json.dump(d, f)
 
     spinner.succeed("Export state data complete")
@@ -87,13 +89,17 @@ def export_metrics_data():
     spinner = Halo({'text': 'Exporting metrics data', 'spinner': 'dots'})
     spinner.start()
 
+    with open('{}/metrics_level/metrics_list.json'.format(BUILD_DIR), 'w') as f:
+        msg = "Exporting metrics list"
+        json.dump(list(MAPTABLES.keys()), f)
+
     for metrics in MAPTABLES.keys():
         msg = "Exporting {} metrics".format(metrics)
         metrics_data = []
         for m in DB[metrics].all():
             m['state_data'] = DB['states'].find_one(state_code=m['state_code'])
             metrics_data.append(m)
-        with open('{}/{}.json'.format(BUILD_DIR, metrics), 'w') as f:
+        with open('{}/metrics_level/{}.json'.format(BUILD_DIR, metrics), 'w') as f:
             json.dump(metrics_data, f)
     spinner.succeed("Export metrics data complete")
 

@@ -43,7 +43,7 @@ export default {
     }
   },
   async asyncData ({ params }) {
-    let { data } = await axios.get(`/json/states.json`)
+    let { data } = await axios.get(`/json/states_level/states.json`)
     return { states: data }
   },
   computed: {
