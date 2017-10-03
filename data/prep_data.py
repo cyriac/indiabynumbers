@@ -89,11 +89,11 @@ def export_metrics_data():
     spinner = Halo({'text': 'Exporting metrics data', 'spinner': 'dots'})
     spinner.start()
 
-    with open('{}/metrics_level/metrics_list.json'.format(BUILD_DIR), 'w') as f:
-        msg = "Exporting metrics list"
-        json.dump(list(MAPTABLES.keys()), f)
-
+    metrickeys = []
     for metrics in MAPTABLES.keys():
+        if metrics == 'states':
+            continue
+        metrickeys.append(metrics)
         msg = "Exporting {} metrics".format(metrics)
         metrics_data = []
         for m in DB[metrics].all():
@@ -101,6 +101,11 @@ def export_metrics_data():
             metrics_data.append(m)
         with open('{}/metrics_level/{}.json'.format(BUILD_DIR, metrics), 'w') as f:
             json.dump(metrics_data, f)
+
+    with open('{}/metrics_level/metrics_list.json'.format(BUILD_DIR), 'w') as f:
+        msg = "Exporting metrics list"
+        json.dump(metrickeys, f)
+
     spinner.succeed("Export metrics data complete")
 
 def _check_table_linking(tablename):
