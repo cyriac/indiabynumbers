@@ -6,17 +6,20 @@ import shutil
 import dataset
 import yaml
 
+from halo import Halo
+
 from cleaner import DataReader
 
 
 MAPTABLES = yaml.load(open('config.yml'))
-db = dataset.connect('sqlite:///:memory:')
+BUILD_DIR = '../static/json'
+DB = dataset.connect('sqlite:///:memory:')
 
 def load_data(key, state_name_field=None):
     def attach_state_code(d, name_field=state_name_field):
         if name_field is not None:
             state_name = d[name_field]
-            node = db['alias'].find_one(name=state_name)
+            node = DB['alias'].find_one(name=state_name)
             code = None
             if node:
                 code = node['code']
@@ -24,22 +27,28 @@ def load_data(key, state_name_field=None):
         return d
 
     reader = DataReader(key=key, prepfunction=attach_state_code)
-    table = db[key]
+    table = DB[key]
     for row in reader.data:
         table.insert(row)
     return table
 
-def load_tables(table=None):
+def load_csvs(table=None):
     if table is not None:
         load_data(table)
     else:
         load_data('alias')
         load_data('state_codes')
+
+        spinner = Halo({'text': 'Loading', 'spinner': 'dots'})
+        spinner.start()
+
         for k, v in MAPTABLES.items():
+            spinner.text = "Loading {}".format(k)
             load_data(k, state_name_field=v)
 
-def export_tables():
-    BUILD_DIR = '../static/json'
+        spinner.succeed("Load complete")
+
+def export_state_data():
     try:
         shutil.rmtree(BUILD_DIR)
     except FileNotFoundError:
@@ -47,17 +56,23 @@ def export_tables():
 
     os.makedirs(BUILD_DIR)
 
-    states = db['state_codes'].all()
+    states = DB['state_codes'].all()
     states = list(states)
+
+    spinner = Halo({'text': 'Exporting state data', 'spinner': 'dots'})
+    spinner.start()
+
     with open('{}/states.json'.format(BUILD_DIR), 'w') as f:
+        msg = "Exporting {}".format("states")
         json.dump(states, f)
 
     for state in states:
-        print("Preparing {}".format(state['code']))
+        msg = "Exporting {}".format(state['code'])
+        spinner.text = msg
         fname = "{}.json".format(state['code'].lower())
         d = copy.deepcopy(state)
         for metrics in MAPTABLES.keys():
-            _metrics = db[metrics].find_one(state_code=state['code'])
+            _metrics = DB[metrics].find_one(state_code=state['code'])
             if _metrics:
                 for k in ['id', 'state_code', MAPTABLES[metrics]]:
                     if k in _metrics:
@@ -66,12 +81,38 @@ def export_tables():
         with open('{}/{}'.format(BUILD_DIR, fname), 'w') as f:
             json.dump(d, f)
 
+    spinner.succeed("Export state data complete")
 
-def check_table_linking(tablename):
-    for i in db[tablename].all():
+def export_metrics_data():
+    spinner = Halo({'text': 'Exporting metrics data', 'spinner': 'dots'})
+    spinner.start()
+
+    for metrics in MAPTABLES.keys():
+        msg = "Exporting {} metrics".format(metrics)
+        metrics_data = []
+        for m in DB[metrics].all():
+            m['state_data'] = DB['states'].find_one(state_code=m['state_code'])
+            metrics_data.append(m)
+        with open('{}/{}.json'.format(BUILD_DIR, metrics), 'w') as f:
+            json.dump(metrics_data, f)
+    spinner.succeed("Export metrics data complete")
+
+def _check_table_linking(tablename):
+    for i in DB[tablename].all():
         if i['state_code'] == None:
-            print(i)
+            yield i
+
+def check_table_linking():
+    for metrics in MAPTABLES.keys():
+        missing_links = list(_check_table_linking(metrics))
+        if len(missing_links) > 0:
+            print("\nMissing links in {}".format(metrics))
+            for i in missing_links:
+                print(i)
+
 
 if __name__ == '__main__':
-    load_tables()
-    export_tables()
+    load_csvs()
+    export_state_data()
+    export_metrics_data()
+    check_table_linking()
