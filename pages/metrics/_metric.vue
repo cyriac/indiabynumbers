@@ -25,4 +25,7 @@ export default {
 </script>
 
 <style lang="scss">
+.wrapper {
+  background-image: none;
+}
 </style>

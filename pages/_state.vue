@@ -16,6 +16,8 @@
       <pre><code>{{ hdi }}</code></pre>
       <h2>HIV AWARENESS</h2>
       <pre><code>{{ hiv_awareness }}</code></pre>
+      <h2>HUMAN TRAFFICKING</h2>
+      <pre><code>{{ human_trafficking }}</code></pre>
     </div>
   </div>
 </template>

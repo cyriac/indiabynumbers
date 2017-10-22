@@ -1,5 +1,12 @@
-states: 'state_or_union_territory'
-area: 'state_territory'
-population: 'state_or_union_territory'
-hiv_awareness: 'state'
-hdi: 'state_union_territory'
+states:
+  state_key: 'state_or_union_territory'
+area:
+  state_key: 'state_territory'
+population:
+  state_key: 'state_or_union_territory'
+hiv_awareness:
+  state_key: 'state'
+hdi:
+  state_key: 'state_union_territory'
+human_trafficking:
+  state_key: 'state'

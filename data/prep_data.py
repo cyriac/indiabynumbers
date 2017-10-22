@@ -44,7 +44,7 @@ def load_csvs(table=None):
 
         for k, v in MAPTABLES.items():
             spinner.text = "Loading {}".format(k)
-            load_data(k, state_name_field=v)
+            load_data(k, state_name_field=v['state_key'])
 
         spinner.succeed("Load complete")
 
@@ -76,7 +76,7 @@ def export_state_data():
         for metrics in MAPTABLES.keys():
             _metrics = DB[metrics].find_one(state_code=state['code'])
             if _metrics:
-                for k in ['id', 'state_code', MAPTABLES[metrics]]:
+                for k in ['id', 'state_code', MAPTABLES[metrics]['state_key']]:
                     if k in _metrics:
                         del _metrics[k]
             d[metrics] = _metrics
@@ -98,6 +98,9 @@ def export_metrics_data():
         metrics_data = []
         for m in DB[metrics].all():
             m['state_data'] = DB['states'].find_one(state_code=m['state_code'])
+            del m['id']
+            if m['state_data'] and 'id' in m['state_data']:
+                del m['state_data']['id']
             metrics_data.append(m)
         with open('{}/metrics_level/{}.json'.format(BUILD_DIR, metrics), 'w') as f:
             json.dump(metrics_data, f)
@@ -120,6 +123,8 @@ def check_table_linking():
             print("\nMissing links in {}".format(metrics))
             for i in missing_links:
                 print(i)
+        else:
+            print("\nCompletely loaded {}".format(metrics))
 
 
 if __name__ == '__main__':
