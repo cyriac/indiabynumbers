@@ -7,7 +7,8 @@
           <div v-if="metrics">
             <hr class="invisible"/>
             <div class="card-columns">
-              <nuxt-link v-for="(index, metric) in metrics" class="card" :key=index :to="'/metrics/'+metric.toLowerCase()">
+              <input type="text" id="search_states" class="form-control mx-sm-3" placeholder="Search" v-model="searchmetrics">
+              <nuxt-link v-for="(metric, index) in metrics_list" class="card" :key=index :to="'/metrics/'+metric">
                 {{ metric }}
               </nuxt-link>
             </div>
@@ -24,8 +25,7 @@ import axios from '~/plugins/axios'
 export default {
   data () {
     return {
-      searchstates: '',
-      statefilter: ''
+      searchmetrics: ''
     }
   },
   async asyncData ({ params }) {
@@ -33,15 +33,12 @@ export default {
     return { metrics: data }
   },
   computed: {
-    list_states () {
+    metrics_list () {
       var self = this
-      return this.states.filter(function (s) {
-        var sname = s.subdivision_name.toLowerCase().replace(' ', '')
-        var search = self.searchstates.toLowerCase().replace(' ', '')
-        if (self.statefilter !== '' && self.statefilter !== s.subdivision_category) {
-          return false
-        }
-        return sname.indexOf(search) !== -1
+      return this.metrics.filter(function (s) {
+        var valuename = s.toLowerCase().replace(' ', '')
+        var search = self.searchmetrics.toLowerCase().replace(' ', '')
+        return valuename.indexOf(search) !== -1
       })
     }
   }
